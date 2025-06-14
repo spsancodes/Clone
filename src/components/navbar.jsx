@@ -9,7 +9,8 @@ import {
   FaFacebook,
   FaInstagram,
   FaChevronRight,
-  FaArrowLeft
+  FaArrowLeft,
+  FaWhatsapp
 } from "react-icons/fa";
 
 // Configuration for dropdown menus
@@ -79,6 +80,18 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentMenu, setCurrentMenu] = useState(null);
   const navigate = useNavigate();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+ 
+const [isClosing, setIsClosing] = useState(false);
+const handleClose = () => {
+  setIsClosing(true);
+  setTimeout(() => {
+    setIsSearchOpen(false);
+    setIsClosing(false);
+  }, 400); // Match this with your closing animation duration
+};
+
 
   const handleDropdownClick = (path) => {
     navigate(path);
@@ -108,38 +121,121 @@ const Navbar = () => {
         </div>
 
         {/* Center: Menu - desktop only */}
-        <ul className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 flex-wrap gap-6 items-center text-sm uppercase font-semibold">
-          {menuConfig.map((menu, index) => (
-            <li key={index} className="relative group cursor-pointer">
-              <div className="hover:text-gray-300 flex items-center gap-1">
-                {menu.title}
-                {menu.items.length > 0 && <span className="text-xs">▾</span>}
-              </div>
-              
-              {menu.items.length > 0 && (
-                <ul className="absolute top-full left-0 bg-white text-black rounded-md shadow-lg opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 ease-out pointer-events-none group-hover:pointer-events-auto w-48 min-w-max py-1">
-                  {menu.items.map((item, itemIndex) => (
-                    <li 
-                      key={itemIndex}
-                      className="px-4 py-2 hover:bg-gray-100 opacity-0 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 whitespace-nowrap"
-                      style={{ transitionDelay: `${100 + itemIndex * 50}ms` }}
-                      onClick={() => handleDropdownClick(item.path)}
-                    >
-                      {item.label}
-                    </li>
-                  ))}
-                </ul>
-              )}
+       <ul className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 flex-wrap gap-6 items-center text-sm uppercase font-semibold">
+  {menuConfig.map((menu, index) => (
+    <li key={index} className="relative group cursor-pointer">
+      <div className="hover:text-gray-300 flex items-center gap-1">
+        {menu.title}
+        {menu.items.length > 0 && <span className="text-xs">▾</span>}
+      </div>
+      
+      {menu.items.length > 0 && (
+        <ul className="absolute top-full left-1/2 transform -translate-x-1/2  bg-black text-gray-300 rounded-md shadow-lg opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 ease-out pointer-events-none group-hover:pointer-events-auto w-48 min-w-max py-1 border border-gray-800">
+          {menu.items.map((item, itemIndex) => (
+            <li 
+              key={itemIndex}
+              className="px-4 py-2 hover:bg-gray-800 hover:text-gray-100 opacity-0 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 whitespace-nowrap"
+              style={{ transitionDelay: `${100 + itemIndex * 50}ms` }}
+              onClick={() => handleDropdownClick(item.path)}
+            >
+              {item.label}
             </li>
           ))}
         </ul>
+      )}
+    </li>
+  ))}
+</ul>
 
-        {/* Right: Icons */}
-        <div className="flex gap-4 items-center w-1/3 justify-end">
-          <FaSearch size={20} className="cursor-pointer" />
-          <FaUser size={20} className="cursor-pointer" />
-          <FaShoppingBag size={20} className="cursor-pointer" />
+      <div className="flex gap-4 items-center w-1/3 justify-end">
+  {/* Search Icon */}
+<div className="relative">
+  <FaSearch 
+    size={20} 
+    className="cursor-pointer hover:text-gray-300"
+    onClick={() => setIsSearchOpen(true)}
+  />
+
+  {/* Search Popup */}
+  {isSearchOpen && (
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end md:items-start items-start pt-2 pr-2 opacity-0"
+      onClick={handleClose}
+      style={{ 
+        opacity: 0,
+        animation: 'fadeIn 0.3s ease-out forwards'
+      }}
+    >
+      <div 
+        className="bg-white md:w-1/2 w-full h-[calc(100%-32px)] p-8 rounded-md relative"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+  margin: '1px',
+  transform: window.innerWidth >= 768
+    ? isClosing
+      ? 'translateX(0)' // Starting point for closing
+      : 'translateX(100%)'
+    : isClosing
+      ? 'translateY(0)'
+      : 'translateY(-100%)',
+  animation: window.innerWidth >= 768
+    ? isClosing
+      ? 'slideOutRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+      : 'slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+    : isClosing
+      ? 'slideOutUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+      : 'slideInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+}}
+
+      >
+        {/* Search Input */}
+        <div className="relative mt-2 border-b-2 border-black pb-2 mx-2">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="SEARCH FOR..."
+            className="w-full text-xl bg-transparent outline-none text-gray-900 placeholder-gray-400 pr-8 font-bold"
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                searchQuery ? setSearchQuery('') : setIsSearchOpen(false);
+              }
+            }}
+          />
+          <button 
+           onClick={() => {
+  if (searchQuery) {
+    setSearchQuery('');
+  } else {
+    handleClose();
+  }
+}}
+            className="absolute right-0 top-0 text-gray-400 hover:text-black"
+          >
+            <FaTimes />
+          </button>
         </div>
+
+        {/* Floating WhatsApp Logo */}
+        <a 
+          href="YOUR_WHATSAPP_LINK_HERE" 
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute md:-bottom-3 md:-right-3 bottom-3 right-3 bg-green-500 text-white p-2 rounded-full hover:bg-green-600 transition-colors border-2 border-white"
+          style={{ width: '44px', height: '44px' }}
+        >
+          <FaWhatsapp size={24} className="m-auto" />
+        </a>
+      </div>
+    </div>
+  )}
+</div>
+
+
+        <FaUser size={20} className="cursor-pointer hover:text-gray-300" />
+        <FaShoppingBag size={20} className="cursor-pointer hover:text-gray-300" />
+      </div>
       </div>
 
       {/* Mobile Sidebar */}
