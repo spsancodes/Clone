@@ -4,6 +4,7 @@ import Navbar from './components/navbar';
 import Home from './pages/Home';
 import Products from './pages/ProductDetails';
 import HeroSlider from './components/HeroSlider';
+import ProductSlider from './components/ProductSlider'; // <-- Import new component
 
 function App() {
   const location = useLocation();
@@ -13,8 +14,13 @@ function App() {
     <>
       <Navbar />
 
-      {/* Show HeroSlider only on the homepage */}
-      {isHome && <HeroSlider />}
+      {/* Show HeroSlider and ProductSlider only on the homepage */}
+      {isHome && (
+        <>
+          <HeroSlider />
+          <ProductSlider /> {/* <-- Add this here */}
+        </>
+      )}
 
       <Routes>
         <Route path="/" element={<Home />} />
